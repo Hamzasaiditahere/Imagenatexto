@@ -1,6 +1,4 @@
 streamlit==1.30.0
 numpy==1.23.5
-opencv-python-headless==4.5.3.56
 easyocr==1.4.1
-Pillow==8.2.0  # Versión de Pillow para evitar el error con zlib
-pip==25.0.1  # O la última versión disponible
+Pillow==8.2.0  # Usa esta versión compatible con easyocr
