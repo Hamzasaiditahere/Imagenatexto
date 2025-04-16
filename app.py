@@ -3,6 +3,14 @@ from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from PIL import Image
 import torch
 
+# Configuración de la página
+st.set_page_config(
+    page_title="ImageOCR",
+    page_icon="📷",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+
 # Cargar el procesador y el modelo TrOCR
 @st.cache_resource
 def load_model():
@@ -169,14 +177,6 @@ def display_footer():
         <p>© 2023 ImageOCR | Desarrollado con TrOCR y Streamlit</p>
     </div>
     """, unsafe_allow_html=True)
-
-# Configuración de la página
-st.set_page_config(
-    page_title="ImageOCR",
-    page_icon="📷",
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
 
 # Aplicar estilo futurista
 apply_futuristic_style()
