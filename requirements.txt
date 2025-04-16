@@ -1,4 +1,4 @@
-pytesseract
-Pillow
+easyocr
 streamlit
-tesseract
+pillow
+opencv-python
