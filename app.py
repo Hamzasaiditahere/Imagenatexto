@@ -161,6 +161,10 @@ def display_footer():
     </div>
     """, unsafe_allow_html=True)
 
+# Convertir la imagen a escala de grises
+def convert_to_grayscale(image):
+    return image.convert("L")
+
 # Aplicar estilo básico
 apply_basic_style()
 
@@ -186,6 +190,9 @@ uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibili
 if uploaded_file:
     # Cargar la imagen
     image = Image.open(uploaded_file).convert("RGB")
+    
+    # Convertir la imagen a escala de grises
+    image = convert_to_grayscale(image)
     
     # Mostrar la imagen con estilo
     st.markdown("""
