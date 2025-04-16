@@ -144,6 +144,9 @@ def custom_file_uploader():
         text-align: center;
         margin: 20px 0;
         background-color: rgba(0, 255, 255, 0.05);
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
     ">
         <div style="font-size: 40px; margin-bottom: 10px; color: #00ffff;">
             📤
