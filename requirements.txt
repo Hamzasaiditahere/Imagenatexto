@@ -2,4 +2,4 @@ streamlit==1.30.0
 numpy==1.23.5 --only-binary :all:
 pillow==8.2.0 --only-binary :all:
 opencv-python-headless==4.5.3.56
-easyocr==1.4.1
+easyocr==1.4.1 
