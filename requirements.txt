@@ -1,4 +1,4 @@
-streamlit==1.21.0
-pytesseract==0.3.10
-Pillow==9.0.1
-opencv-python==4.5.5.64
+pytesseract
+Pillow
+streamlit
+tesseract
