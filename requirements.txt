@@ -1,4 +1,4 @@
-easyocr==1.4.1
+easyocr==1.5.0
 streamlit
 pillow
-opencv-contrib-python==4.5.3.56
+opencv-contrib-python==4.7.0.72
