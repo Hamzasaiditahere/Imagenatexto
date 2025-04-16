@@ -25,11 +25,11 @@ def load_model():
 
 processor, model, device = load_model()
 
-# Función para aplicar estilo futurista
-def apply_futuristic_style():
+# Función para aplicar estilo básico
+def apply_basic_style():
     st.markdown("""
     <style>
-        /* Estilo futurista y minimalista */
+        /* Estilo básico y minimalista */
         .stApp {
             background-color: #000000;
             color: #ffffff;
@@ -55,12 +55,6 @@ def apply_futuristic_style():
             background-color: #00ffff;
             color: #000000;
             box-shadow: 0 0 15px #00ffff;
-        }
-        
-        .uploadedFile {
-            border: 1px dashed #00ffff;
-            border-radius: 5px;
-            padding: 10px;
         }
         
         .stTextInput>div>div>input {
@@ -91,20 +85,6 @@ def apply_futuristic_style():
             box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
         }
         
-        /* Animación de carga */
-        @keyframes glow {
-            0% { box-shadow: 0 0 5px #00ffff; }
-            50% { box-shadow: 0 0 20px #00ffff; }
-            100% { box-shadow: 0 0 5px #00ffff; }
-        }
-        
-        .processing {
-            animation: glow 1.5s infinite;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        
         /* Footer */
         .footer {
             position: fixed;
@@ -130,7 +110,7 @@ def display_logo():
     st.markdown("""
     <div style="text-align: center; margin-bottom: 30px;">
         <h1 style="font-size: 3em; margin-bottom: 0;">Image<span style="color: #00ffff;">OCR</span></h1>
-        <p style="color: #888888; margin-top: 0;">Reconocimiento Óptico de Caracteres Futurista</p>
+        <p style="color: #888888; margin-top: 0;">Reconocimiento Óptico de Caracteres</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -181,8 +161,8 @@ def display_footer():
     </div>
     """, unsafe_allow_html=True)
 
-# Aplicar estilo futurista
-apply_futuristic_style()
+# Aplicar estilo básico
+apply_basic_style()
 
 # Contenedor principal
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
