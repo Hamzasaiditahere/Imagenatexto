@@ -1,6 +1,5 @@
 streamlit==1.30.0
-easyocr==1.4.1
-pillow==8.2.0  # Versión compatible con EasyOCR
-numpy==1.23.5
+numpy==1.23.5 --only-binary :all:
+pillow==8.2.0 --only-binary :all:
 opencv-python-headless==4.5.3.56
-torch==1.13.1
+easyocr==1.4.1
