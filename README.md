@@ -1,4 +1,4 @@
-#Imagenatexto - Reconocimiento Óptico de Caracteres Futurista (OCR)
+#Imagenatexto - Reconocimiento Óptico de Caracteres Futurista (OCR)#
 Imagenatexto es una aplicación web moderna y futurista de Reconocimiento Óptico de Caracteres (OCR), que utiliza el poder de la inteligencia artificial para extraer texto de imágenes. Desarrollada con Streamlit y el modelo TrOCR de Microsoft, esta aplicación es capaz de reconocer texto manuscrito o impreso en imágenes y mostrarlo de una manera elegante y eficiente.
 
 🔍 Reconocimiento de Texto
