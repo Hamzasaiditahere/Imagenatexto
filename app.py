@@ -1,6 +1,6 @@
 import streamlit as st
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-from PIL import Image
+from PIL import Image, ImageEnhance
 import torch
 
 # Configuración de la página
@@ -161,10 +161,19 @@ def display_footer():
     </div>
     """, unsafe_allow_html=True)
 
-# Convertir la imagen a escala de grises y luego convertirla a formato RGB
-def convert_to_grayscale(image):
-    grayscale_image = image.convert("L")  # Convertir a escala de grises
-    return grayscale_image.convert("RGB")  # Convertir a RGB (3 canales)
+# Convertir la imagen a escala de grises, mejorar el contraste y luego convertirla a formato RGB
+def preprocess_image(image):
+    # Convertir a escala de grises
+    grayscale_image = image.convert("L")
+    
+    # Mejorar el contraste
+    enhancer = ImageEnhance.Contrast(grayscale_image)
+    enhanced_image = enhancer.enhance(2.0)  # Ajusta este valor según sea necesario
+    
+    # Convertir a RGB
+    rgb_image = enhanced_image.convert("RGB")
+    
+    return rgb_image
 
 # Aplicar estilo básico
 apply_basic_style()
@@ -192,8 +201,8 @@ if uploaded_file:
     # Cargar la imagen
     image = Image.open(uploaded_file).convert("RGB")
     
-    # Convertir la imagen a escala de grises y luego a RGB
-    image = convert_to_grayscale(image)
+    # Preprocesar la imagen
+    image = preprocess_image(image)
     
     # Mostrar la imagen con estilo
     st.markdown("""
@@ -220,10 +229,4 @@ if uploaded_file:
                 display_detected_text(generated_text)
                 
             except Exception as e:
-                st.error(f"❌ Error en el OCR: {e}")
-
-# Cerrar el contenedor principal
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Mostrar el footer
-display_footer()
+                st.error(f"❌
