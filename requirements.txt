@@ -2,3 +2,5 @@ streamlit==1.30.0
 numpy==1.23.5
 easyocr==1.4.1
 Pillow==8.2.0  # Usa esta versión compatible con easyocr
+sudo apt-get update
+sudo apt-get install -y zlib1g-dev libjpeg-dev libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python3-dev
