@@ -1,17 +1,20 @@
 import streamlit as st
 from PIL import Image
-import easyocr
+import easyocr  # Usamos easyocr en lugar de pytesseract
 
+# Función para detectar texto usando easyocr
 def detect_text_from_image(image):
-    reader = easyocr.Reader(['en'])
+    reader = easyocr.Reader(['en'])  # Puedes agregar más idiomas si lo necesitas
     result = reader.readtext(image)
     text = ""
     for detection in result:
         text += detection[1] + "\n"
     return text
 
+# Título de la aplicación
 st.title("Imagen a Texto")
 
+# Subir una imagen
 uploaded_file = st.file_uploader("Sube una imagen", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
