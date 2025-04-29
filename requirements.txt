@@ -1,4 +1,4 @@
-streamlit==1.30.0
-numpy==1.23.5
-easyocr==1.4.1
-Pillow==8.2.0  # Usa esta versión compatible con easyocr
+streamlit
+tensorflow==2.13.0
+numpy
+Pillow
