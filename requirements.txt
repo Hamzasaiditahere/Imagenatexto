@@ -1,5 +1,5 @@
 streamlit==1.28.0
-tensorflow==2.15.0
+tensorflow==2.15.0  # Versión más nueva con soporte para opsets actuales
 opencv-python-headless==4.8.0.76
 numpy==1.24.3
 Pillow==10.0.0
