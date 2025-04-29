@@ -7,7 +7,8 @@ import string
 from PIL import Image
 
 # Cargar modelo
-model = tf.keras.models.load_model('modelo_ocr.h5')
+model = tf.keras.models.load_model('modelo_ocr.h5', compile=False)
+
 chars = list(string.digits + string.ascii_uppercase)
 
 st.title("Reconocimiento OCR simple")
