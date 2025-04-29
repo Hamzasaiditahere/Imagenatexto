@@ -6,39 +6,38 @@ import sys
 
 # Configuración inicial
 st.title("🔠 Reconocimiento de Texto Universal")
-st.write("Sistema profesional compatible con todas versiones")
+st.write("Sistema profesional - Versión Estable")
 
-# Función de redimensionamiento universal
+# Función de redimensionamiento CORREGIDA
 def universal_resize(image, max_size=800):
-    """Función 100% compatible con todas las versiones de Pillow"""
+    """Función completamente compatible con todas versiones de Pillow"""
     try:
-        # Versiones modernas (Pillow >= 9.1.0)
+        # Para Pillow >= 9.1.0
         return image.resize((max_size, max_size), Image.Resampling.LANCZOS)
     except AttributeError:
         try:
-            # Versiones intermedias
+            # Para versiones antiguas
             return image.resize((max_size, max_size), Image.LANCZOS)
         except AttributeError:
-            # Versiones antiguas (fallback sin filtro)
+            # Fallback básico
             return image.resize((max_size, max_size))
 
-@st.cache_resource
+@st.cache_resource 
 def load_reader():
-    # Configuración ligera para español
-    return easyocr.Reader(['es'], gpu=False)  # CPU mode for better compatibility
+    return easyocr.Reader(['es'], gpu=False)  # Modo CPU para mejor compatibilidad
 
 reader = load_reader()
 
-# Interfaz de usuario mejorada
-uploaded_file = st.file_uploader("Sube tu imagen aquí", type=["png", "jpg", "jpeg"])
+# Interfaz de usuario
+uploaded_file = st.file_uploader("Sube una imagen con texto claro", type=["png","jpg","jpeg"])
 
 if uploaded_file:
     try:
-        with st.spinner("Procesando imagen..."):
-            # Carga y procesamiento seguro
+        with st.spinner("Analizando imagen..."):
+            # Procesamiento seguro
             img = Image.open(uploaded_file)
             
-            # Redimensionamiento universal
+            # Redimensionamiento CORREGIDO
             if max(img.size) > 800:
                 img = universal_resize(img)
             
@@ -48,21 +47,22 @@ if uploaded_file:
             # Reconocimiento
             results = reader.readtext(img_array)
             
-            # Resultados
+            # Mostrar resultados
             if results:
-                st.success("✅ Texto reconocido con éxito!")
+                st.success("✅ Texto reconocido:")
                 for i, (_, text, prob) in enumerate(results, 1):
                     st.write(f"{i}. {text} (confianza: {prob*100:.1f}%)")
             else:
-                st.warning("⚠️ No se encontró texto legible")
-
+                st.warning("⚠️ No se detectó texto")
+                
         st.image(img, caption="Imagen procesada", use_column_width=True)
         
     except Exception as e:
-        st.error(f"Error crítico: {str(e)}")
+        st.error(f"Error en el procesamiento: {str(e)}")
         st.write("ℹ️ Detalles técnicos:", sys.exc_info()[0])
 
-# Información de versión (para diagnóstico)
-with st.expander("ℹ️ Información del sistema"):
-    st.write(f"Versión de Pillow: {Image.__version__}")
-    st.write(f"Versión de Python: {sys.version.split()[0]}")
+# Información del sistema
+with st.expander("ℹ️ Versiones instaladas"):
+    st.write(f"Pillow v{Image.__version__}")
+    st.write(f"Python v{sys.version.split()[0]}")
+    st.write(f"EasyOCR v{easyocr.__version__}")
