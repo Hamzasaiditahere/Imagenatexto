@@ -40,8 +40,10 @@ if uploaded_file:
     except Exception as e:
         st.error(f"Error: {str(e)}")
 
-# Notas adicionales
+# Notas adicionales (CORREGIDO EL TRIPLE QUOTE)
 st.markdown("""
-**Recomendaciones para mejores resultados:**
-1. Use imágenes con texto claro
-2. Asegúrese
+**Recomendaciones para mejores resultados:**  
+1. Use imágenes con texto claro  
+2. Asegúrese que el fondo contrasta con el texto  
+3. Para letras individuales, use fuente grande y centrada  
+""")
