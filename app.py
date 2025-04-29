@@ -15,7 +15,7 @@ CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*(
 def load_model():
     try:
         # Verificar si el archivo existe
-        if not os.path.exists("ocr_model.tflite"):
+        if not os.path.exists("ocr_model_compatible.tflite"):
             raise FileNotFoundError("El archivo 'ocr_model.tflite' no existe en el directorio")
             
         # Cargar modelo con verificación de compatibilidad
