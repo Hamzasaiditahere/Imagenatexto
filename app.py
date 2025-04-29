@@ -1,49 +1,50 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import easyocr
 
 # Configuración inicial
-st.title("🔠 Reconocimiento de Texto Confiable")
-st.write("Esta versión utiliza EasyOCR, un motor de reconocimiento profesional")
+st.title("🔠 Reconocimiento de Texto Profesional")
+st.write("Sistema mejorado con EasyOCR")
 
-# Inicializar EasyOCR (solo una vez)
 @st.cache_resource
 def load_reader():
-    return easyocr.Reader(['en', 'es'])  # Soporte para inglés y español
+    return easyocr.Reader(['es'])  # Solo español para mejor rendimiento
 
 reader = load_reader()
 
-# Interfaz de usuario
-uploaded_file = st.file_uploader("Sube una imagen con texto", type=["png", "jpg", "jpeg"])
+# Interfaz mejorada
+uploaded_file = st.file_uploader("Sube imagen con texto", type=["png","jpg","jpeg"])
 
 if uploaded_file:
     try:
-        # Procesamiento de imagen
+        # Procesamiento mejorado
         img = Image.open(uploaded_file)
-        st.image(img, caption="Imagen original", width=300)
         
-        # Convertir a formato que EasyOCR puede procesar
-        img_array = np.array(img)
+        # Redimensionamiento CORREGIDO (sin ANTIALIAS)
+        if img.size[0] > 800 or img.size[1] > 800:
+            img = img.resize((800, 800), Image.Resampling.LANCZOS)  # ¡Corrección aquí!
+        
+        st.image(img, caption="Imagen procesada", use_column_width=True)
         
         # Reconocimiento
-        results = reader.readtext(img_array)
+        results = reader.readtext(np.array(img))
         
-        # Mostrar resultados
-        st.subheader("Resultados:")
-        for (bbox, text, prob) in results:
-            st.write(f"Texto: {text} | Confianza: {prob*100:.1f}%")
-            
-        if not results:
-            st.warning("No se detectó texto en la imagen")
+        # Resultados organizados
+        if results:
+            st.subheader("📝 Texto reconocido:")
+            for i, (bbox, text, prob) in enumerate(results, 1):
+                st.success(f"{i}. {text} (Confianza: {prob*100:.1f}%)")
+        else:
+            st.warning("No se detectó texto")
             
     except Exception as e:
-        st.error(f"Error: {str(e)}")
+        st.error(f"Error en el procesamiento: {str(e)}")
 
-# Notas adicionales (CORREGIDO EL TRIPLE QUOTE)
+# Guía de uso (formato corregido)
 st.markdown("""
-**Recomendaciones para mejores resultados:**  
-1. Use imágenes con texto claro  
-2. Asegúrese que el fondo contrasta con el texto  
-3. Para letras individuales, use fuente grande y centrada  
+**📌 Consejos para mejores resultados:**
+1. Imágenes nítidas con texto claro
+2. Fondo contrastante (oscuro para texto claro o viceversa)
+3. Tamaño mínimo de 300x300 píxeles
 """)
