@@ -8,64 +8,64 @@ import sys
 st.title("🔠 Reconocimiento de Texto Universal")
 st.write("Sistema profesional - Versión Estable")
 
-# Función de redimensionamiento 100% compatible
+# Función de redimensionamiento CORREGIDA
 def safe_resize(image, max_size=800):
-    """Versión completamente robusta para todas las versiones de Pillow"""
+    """Versión 100% compatible con Pillow 10.0.0"""
     try:
-        # Intenta el método moderno primero (Pillow >= 9.1.0)
+        # Método moderno (Pillow 10+)
         return image.resize((max_size, max_size), resample=Image.LANCZOS)
     except Exception:
-        # Fallback para cualquier caso
+        # Fallback seguro
         return image.resize((max_size, max_size))
 
 @st.cache_resource 
 def load_reader():
-    return easyocr.Reader(['es'], gpu=False)  # Modo CPU para máxima compatibilidad
+    return easyocr.Reader(['es'], gpu=False)
 
 reader = load_reader()
 
-# Interfaz de usuario mejorada
+# Interfaz mejorada
 uploaded_file = st.file_uploader("Sube una imagen con texto claro", type=["png","jpg","jpeg"])
 
 if uploaded_file:
     try:
-        with st.spinner("Procesando imagen..."):
-            # Carga segura de la imagen
+        with st.spinner("Analizando imagen..."):
+            # Procesamiento seguro
             img = Image.open(uploaded_file)
             
             # Redimensionamiento seguro
             if max(img.size) > 800:
                 img = safe_resize(img)
             
-            # Conversión a array numpy
+            # Conversión a array
             img_array = np.array(img)
             
-            # Reconocimiento de texto
+            # Reconocimiento
             results = reader.readtext(img_array)
             
-            # Mostrar resultados
+            # Resultados
             if results:
-                st.success("✅ Texto reconocido con éxito!")
+                st.success("✅ Texto reconocido:")
                 for i, (_, text, prob) in enumerate(results, 1):
                     st.write(f"{i}. {text} (confianza: {prob*100:.1f}%)")
             else:
-                st.warning("⚠️ No se detectó texto legible")
+                st.warning("⚠️ No se detectó texto")
                 
-        # Mostrar imagen procesada
-        st.image(img, caption="Imagen analizada", use_column_width=True)
+        st.image(img, caption="Imagen procesada", use_column_width=True)
         
     except Exception as e:
         st.error(f"Error en el procesamiento: {str(e)}")
-        st.write("ℹ️ Para diagnóstico:", {
+        st.json({
             "Versión Pillow": Image.__version__,
             "Versión Python": sys.version.split()[0],
-            "Tipo de archivo": uploaded_file.type
+            "Tipo de archivo": uploaded_file.type,
+            "Error": str(e)
         })
 
-# Información adicional
+# Consejos optimizados
 st.markdown("""
-**📌 Consejos para mejores resultados:**
-- Texto negro sobre fondo blanco funciona mejor
-- Letras deben tener al menos 50px de altura
-- Evite imágenes borrosas o con mucho ruido
+**📌 Recomendaciones profesionales:**
+- Texto negro sobre fondo blanco
+- Resolución mínima: 300x300 píxeles
+- Fuentes claras sin decoraciones
 """)
