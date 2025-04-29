@@ -1,5 +1,5 @@
 streamlit==1.28.0
-tensorflow==2.15.0
-opencv-python-headless==4.8.0.76
+easyocr==1.7.0
+pillow==10.0.0
 numpy==1.24.3
-Pillow==10.0.0
+torch==2.0.1  # Requerido para EasyOCR
