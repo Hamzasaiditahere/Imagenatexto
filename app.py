@@ -4,8 +4,12 @@ import tensorflow as tf
 import string
 from PIL import Image
 
-# Cargar modelo (formato SavedModel, NO .h5)
-model = tf.keras.models.load_model("modelo_ocr")  # carpeta sin extensión .h5
+# Cargar el modelo (formato SavedModel)
+@st.cache_resource
+def load_model():
+    return tf.keras.models.load_model("modelo_ocr_saved_model")
+
+model = load_model()
 st.write("✅ Modelo cargado correctamente")
 
 # Lista de caracteres posibles
@@ -16,10 +20,10 @@ st.title("🧠 OCR - Reconocimiento de un carácter")
 uploaded_file = st.file_uploader("📤 Sube una imagen con un solo carácter", type=["png", "jpg", "jpeg"])
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file).convert('L')     # escala de grises
-    image = image.resize((28, 28))                      # tamaño esperado por el modelo
-    img_array = np.array(image) / 255.0                 # normalización
-    img_array = np.expand_dims(img_array, axis=(0, -1))  # shape: (1, 28, 28, 1)
+    image = Image.open(uploaded_file).convert('L')     # Convertir a escala de grises
+    image = image.resize((28, 28))                      # Redimensionar a 28x28 píxeles
+    img_array = np.array(image) / 255.0                 # Normalizar los píxeles
+    img_array = np.expand_dims(img_array, axis=(0, -1))  # Añadir dimensiones para el modelo
 
     pred = model.predict(img_array)
     predicted_char = chars[np.argmax(pred)]
