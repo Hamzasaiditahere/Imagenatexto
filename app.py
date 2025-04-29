@@ -8,6 +8,7 @@ from PIL import Image
 
 # Cargar modelo
 model = tf.keras.models.load_model('modelo_ocr.h5', compile=False)
+st.write("Modelo cargado correctamente")
 
 chars = list(string.digits + string.ascii_uppercase)
 
