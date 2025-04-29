@@ -5,46 +5,62 @@ import easyocr
 
 # Configuración inicial
 st.title("🔠 Reconocimiento de Texto Profesional")
-st.write("Sistema mejorado con EasyOCR")
+st.write("Sistema mejorado con EasyOCR - Versión Estable")
 
 @st.cache_resource
 def load_reader():
-    return easyocr.Reader(['es'])  # Solo español para mejor rendimiento
+    return easyocr.Reader(['es'])  # Configuración optimizada para español
 
 reader = load_reader()
 
-# Interfaz mejorada
-uploaded_file = st.file_uploader("Sube imagen con texto", type=["png","jpg","jpeg"])
+def safe_resize(image, max_size=800):
+    """Función compatible con todas las versiones de Pillow"""
+    try:
+        # Para Pillow >= 10.0.0
+        return image.resize((max_size, max_size), Image.Resampling.LANCZOS)
+    except:
+        try:
+            # Para Pillow < 10.0.0
+            return image.resize((max_size, max_size), Image.LANCZOS)
+        except:
+            # Fallback final (sin filtro de resampling)
+            return image.resize((max_size, max_size))
+
+# Interfaz de usuario
+uploaded_file = st.file_uploader("Sube una imagen con texto claro", type=["png", "jpg", "jpeg"])
 
 if uploaded_file:
     try:
         # Procesamiento mejorado
         img = Image.open(uploaded_file)
         
-        # Redimensionamiento CORREGIDO (sin ANTIALIAS)
+        # Redimensionamiento seguro
         if img.size[0] > 800 or img.size[1] > 800:
-            img = img.resize((800, 800), Image.Resampling.LANCZOS)  # ¡Corrección aquí!
+            img = safe_resize(img)
         
-        st.image(img, caption="Imagen procesada", use_column_width=True)
+        st.image(img, caption="Imagen optimizada", use_column_width=True)
         
-        # Reconocimiento
-        results = reader.readtext(np.array(img))
+        # Conversión a array numpy
+        img_array = np.array(img)
         
-        # Resultados organizados
+        # Reconocimiento de texto
+        results = reader.readtext(img_array)
+        
+        # Mostrar resultados
         if results:
-            st.subheader("📝 Texto reconocido:")
+            st.subheader("✅ Texto reconocido:")
             for i, (bbox, text, prob) in enumerate(results, 1):
-                st.success(f"{i}. {text} (Confianza: {prob*100:.1f}%)")
+                st.success(f"{i}. {text} (Precisión: {prob*100:.1f}%)")
         else:
-            st.warning("No se detectó texto")
+            st.warning("⚠️ No se detectó texto en la imagen")
             
     except Exception as e:
-        st.error(f"Error en el procesamiento: {str(e)}")
+        st.error(f"🚨 Error en el procesamiento: {str(e)}")
 
-# Guía de uso (formato corregido)
+# Guía de uso optimizada
 st.markdown("""
-**📌 Consejos para mejores resultados:**
-1. Imágenes nítidas con texto claro
-2. Fondo contrastante (oscuro para texto claro o viceversa)
-3. Tamaño mínimo de 300x300 píxeles
+**📌 Consejos profesionales:**
+1. Texto negro sobre fondo blanco funciona mejor
+2. Resolución mínima recomendada: 300x300 píxels
+3. Evite ángulos inclinados (>15°)
 """)
