@@ -1,40 +1,27 @@
+# app.py
 import streamlit as st
-from PIL import Image
-import easyocr
 import numpy as np
 import cv2
+import tensorflow as tf
+import string
+from PIL import Image
 
-st.set_page_config(
-    page_title="OCR - Detectar un solo carácter",
-    page_icon="🔠",
-    layout="centered"
-)
+# Cargar modelo
+model = tf.keras.models.load_model('modelo_ocr.keras')
+chars = list(string.digits + string.ascii_uppercase)
 
-st.title("OCR - Detectar un solo carácter")
+st.title("Reconocimiento OCR simple")
 
-# Inicializamos el lector OCR
-try:
-    reader = easyocr.Reader(['en'])
-except Exception as e:
-    st.error(f"Error inicializando EasyOCR: {e}")
+uploaded_file = st.file_uploader("Sube una imagen con un solo carácter", type=["png", "jpg", "jpeg"])
 
-def detect_single_character(image):
-    try:
-        img_rgb = image.convert("RGB")
-        img_np = np.array(img_rgb)
-        results = reader.readtext(img_np)
-        for result in results:
-            detected_text = result[1]
-            if len(detected_text) == 1:
-                return detected_text
-        return "No se detectó un solo carácter."
-    except Exception as e:
-        return f"Error durante la detección: {e}"
+if uploaded_file is not None:
+    image = Image.open(uploaded_file).convert('L')
+    image = image.resize((28, 28))
+    img_array = np.array(image) / 255.0
+    img_array = np.expand_dims(img_array, axis=(0, -1))  # (1, 28, 28, 1)
 
-uploaded_file = st.file_uploader("Sube una imagen (JPG, JPEG, PNG)", type=["jpg", "jpeg", "png"])
-if uploaded_file:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Imagen cargada", use_column_width=True)
-    if st.button("Detectar Carácter"):
-        result = detect_single_character(image)
-        st.text_area("Texto Detectado", result)
+    pred = model.predict(img_array)
+    predicted_char = chars[np.argmax(pred)]
+
+    st.image(image, caption="Imagen cargada", width=150)
+    st.write(f"🔤 Carácter detectado: **{predicted_char}**")
