@@ -6,69 +6,64 @@ import sys
 
 # Configuración inicial
 st.title("🔠 Reconocimiento de Texto Universal")
-st.write("Sistema profesional - Versión 10.0.0 Compatible")
+st.write("Sistema profesional - Versión Final")
 
 # Función de redimensionamiento 100% compatible
-def compatible_resize(image, max_size=800):
-    """Versión completamente compatible con Pillow 10.0.0+"""
+def resize_image(img, max_size=800):
+    """Versión completamente compatible con Pillow 10+"""
     try:
-        # Método moderno (Pillow 10+)
-        return image.resize((max_size, max_size), resample=Image.Resampling.LANCZOS)
-    except AttributeError:
-        # Fallback ultra seguro
-        return image.resize((max_size, max_size))
+        return img.resize((max_size, max_size), resample=Image.Resampling.LANCZOS)
+    except:
+        return img.resize((max_size, max_size))
 
 @st.cache_resource 
 def load_reader():
-    return easyocr.Reader(['es'], gpu=False)  # Modo CPU para máxima compatibilidad
+    return easyocr.Reader(['es'], gpu=False)
 
 reader = load_reader()
 
-# Interfaz de usuario mejorada
-uploaded_file = st.file_uploader("Sube una imagen con texto claro", type=["png","jpg","jpeg"])
+# Interfaz mejorada
+uploaded_file = st.file_uploader("Sube una imagen con texto", type=["png","jpg","jpeg"])
 
 if uploaded_file:
     try:
-        with st.spinner("Procesando imagen..."):
-            # Carga segura de la imagen
+        with st.spinner("Analizando..."):
+            # Procesamiento seguro
             img = Image.open(uploaded_file)
             
-            # Redimensionamiento compatible
+            # Redimensionamiento seguro
             if max(img.size) > 800:
-                img = compatible_resize(img)
+                img = resize_image(img)
             
-            # Conversión a array numpy
-            img_array = np.array(img.convert('RGB'))  # Conversión explícita a RGB
+            # Conversión a array
+            img_array = np.array(img.convert('RGB'))
             
-            # Reconocimiento de texto
+            # Reconocimiento
             results = reader.readtext(img_array)
             
-            # Mostrar resultados
+            # Resultados
             if results:
-                st.success("✅ Texto reconocido con éxito!")
-                for i, (_, text, prob) in enumerate(results, 1):
-                    st.write(f"{i}. {text} (confianza: {prob*100:.2f}%)")
+                st.success("✅ Resultados:")
+                cols = st.columns(2)
+                cols[0].image(img, width=200)
+                with cols[1]:
+                    for i, (_, text, prob) in enumerate(results, 1):
+                        st.write(f"{i}. {text} ({prob*100:.1f}%)")
             else:
-                st.warning("⚠️ No se detectó texto legible")
+                st.warning("No se detectó texto")
                 
-        # Mostrar imagen procesada
-        st.image(img, caption="Imagen analizada", use_column_width=True)
-        
     except Exception as e:
-        st.error(f"Error en el procesamiento: {str(e)}")
-        st.json({
-            "Versión Pillow": Image.__version__,
-            "Versión Python": sys.version.split()[0],
-            "Tipo de archivo": uploaded_file.type,
-            "Error": str(e),
-            "Solución": "Use Image.Resampling.LANCZOS en lugar de ANTIALIAS"
-        })
+        st.error("Error al procesar")
+        st.code(f"""
+        Error: {str(e)}
+        Versión Pillow: {Image.__version__}
+        Tipo archivo: {uploaded_file.type}
+        """)
 
-# Consejos profesionales
-st.markdown("""
-**📌 Mejores prácticas:**
-- Texto negro sobre fondo blanco
-- Tamaño mínimo de 50px para caracteres
-- Imágenes nítidas sin compresión
-- Formatos recomendados: PNG > JPEG
+# Consejos de uso
+st.info("""
+💡 **Consejos profesionales:**
+1. Use imágenes nítidas con buen contraste
+2. Texto negro sobre fondo blanco funciona mejor
+3. Tamaño mínimo recomendado: 300x300 píxeles
 """)
