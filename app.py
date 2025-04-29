@@ -1,45 +1,56 @@
-!pip install tensorflow==2.12.0  # Versión específica para compatibilidad
-import tensorflow as tf
+import streamlit as st
+from PIL import Image
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+import tensorflow as tf
 import os
+import sys
 
 # Configuración
 CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 IMG_SIZE = 48
 
-# Generar dataset (código anterior)
-# ...
+@st.cache_resource
+def load_model():
+    try:
+        # Cargar modelo con verificación de compatibilidad
+        interpreter = tf.lite.Interpreter(model_path="ocr_ultra_compatible.tflite")
+        
+        # Configuración explícita para máxima compatibilidad
+        interpreter.allocate_tensors()
+        
+        # Prueba de funcionamiento
+        input_details = interpreter.get_input_details()
+        test_input = np.zeros(input_details[0]['shape'], dtype=np.float32)
+        interpreter.set_tensor(input_details[0]['index'], test_input)
+        interpreter.invoke()
+        
+        return interpreter
+    except Exception as e:
+        st.error(f"Error crítico: {str(e)}")
+        st.write("""
+        Solución requerida:
+        1. Regenera el modelo con el código de Colab proporcionado
+        2. Usa tensorflow==2.12.0 en Colab
+        3. Asegúrate de subir el nuevo modelo 'ocr_ultra_compatible.tflite'
+        """)
+        st.stop()
 
-# Modelo con compatibilidad garantizada
-model = tf.keras.Sequential([
-    tf.keras.layers.Conv2D(16, (3,3), activation='relu', input_shape=(IMG_SIZE, IMG_SIZE, 1)),
-    tf.keras.layers.MaxPooling2D((2,2)),
-    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(64, activation='relu'),
-    tf.keras.layers.Dense(len(CHARS), activation='softmax')
-])
+def predict(image):
+    try:
+        img = image.convert('L').resize((IMG_SIZE, IMG_SIZE))
+        img_array = np.array(img).reshape(1, IMG_SIZE, IMG_SIZE, 1).astype(np.float32)/255.0
+        
+        interpreter = load_model()
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        
+        interpreter.set_tensor(input_details[0]['index'], img_array)
+        interpreter.invoke()
+        return interpreter.get_tensor(output_details[0]['index'])[0]
+    except Exception as e:
+        st.error(f"Error en predicción: {str(e)}")
+        return np.zeros(len(CHARS))
 
-model.compile(optimizer='adam', 
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-
-# Entrenamiento
-model.fit(X_train, y_train, epochs=15, validation_data=(X_test, y_test))
-
-# Conversión SUPER compatible
-converter = tf.lite.TFLiteConverter.from_keras_model(model)
-converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_TFLITE_BUILTINS]  # Clave
-converter.optimizations = [tf.lite.Optimize.DEFAULT]
-
-tflite_model = converter.convert()
-
-# Verificar tamaño
-print(f"Tamaño del modelo: {len(tflite_model)/1024:.2f} KB")
-
-# Descargar
-with open('ocr_ultra_compatible.tflite', 'wb') as f:
-    f.write(tflite_model)
-from google.colab import files
-files.download('ocr_ultra_compatible.tflite')
+# Interfaz
+st.title("🔠 OCR Ultra Compatible")
+uploaded_file = st.file_uploader("Sube imagen de un carácter
