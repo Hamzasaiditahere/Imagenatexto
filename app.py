@@ -1,96 +1,79 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
-import easyocr
+import pytesseract
+import io
 import sys
 
 # Configuración inicial
-st.set_page_config(page_title="OCR Profesional", layout="wide")
-st.title("✍️ Reconocimiento de Texto Avanzado")
+st.set_page_config(page_title="OCR Definitivo", layout="wide")
+st.title("🔠 OCR 100% Funcional")
 
-# Solución definitiva para ANTIALIAS
-import PIL
-if hasattr(PIL.Image, 'ANTIALIAS'):
-    RESAMPLE = PIL.Image.ANTIALIAS
-else:
-    RESAMPLE = PIL.Image.Resampling.LANCZOS
-
-@st.cache_resource
-def load_reader():
-    # Configuración optimizada para español
-    return easyocr.Reader(['es'], 
-                        gpu=False,
-                        model_storage_directory='model',
-                        download_enabled=True)
-
-reader = load_reader()
-
-def process_image(uploaded_file):
-    """Procesamiento completo de imágenes"""
+# Solución definitiva sin dependencias problemáticas
+def process_image(image_bytes):
+    """Procesamiento robusto de imágenes"""
     try:
-        img = Image.open(uploaded_file)
+        img = Image.open(io.BytesIO(image_bytes))
         
-        # Redimensionamiento seguro
-        if max(img.size) > 800:
-            img = img.resize((800, 800), resample=RESAMPLE)
+        # Preprocesamiento mejorado
+        img = img.convert('L')  # Escala de grises
+        img = img.point(lambda x: 0 if x < 140 else 255)  # Binarización
         
-        # Conversión garantizada
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-            
-        return np.array(img), None
+        return img, None
     except Exception as e:
         return None, str(e)
 
 # Interfaz mejorada
-uploaded_file = st.file_uploader("Sube tu imagen aquí", type=["png", "jpg", "jpeg"])
+uploaded_file = st.file_uploader("Sube cualquier imagen con texto", type=["png", "jpg", "jpeg"])
 
 if uploaded_file:
     col1, col2 = st.columns(2)
     
-    with col1:
-        st.subheader("Imagen Original")
-        st.image(uploaded_file, use_column_width=True)
-    
-    with col2:
-        st.subheader("Resultados")
-        
+    # Procesamiento garantizado
+    with st.spinner("Analizando..."):
         try:
-            img_array, error = process_image(uploaded_file)
+            # Leer archivo directamente en bytes
+            file_bytes = uploaded_file.read()
+            
+            # Procesar imagen
+            processed_img, error = process_image(file_bytes)
+            
             if error:
                 raise Exception(error)
                 
-            with st.spinner("Analizando texto..."):
-                results = reader.readtext(img_array)
+            with col1:
+                st.subheader("Imagen Procesada")
+                st.image(processed_img, width=300)
                 
-                if results:
+            with col2:
+                st.subheader("Resultados")
+                
+                # Usar pytesseract para OCR (más estable que EasyOCR)
+                text = pytesseract.image_to_string(processed_img, lang='spa')
+                
+                if text.strip():
                     st.success("✅ Texto reconocido:")
-                    for i, (_, text, prob) in enumerate(results, 1):
-                        st.metric(f"Opción {i}", 
-                                 f"{text}", 
-                                 f"{prob*100:.1f}% de confianza")
+                    st.code(text)
                 else:
-                    st.warning("No se encontró texto legible")
+                    st.warning("No se detectó texto")
                     
         except Exception as e:
-            st.error(f"Error en el procesamiento: {str(e)}")
+            st.error(f"Error: {str(e)}")
             st.json({
-                "Versión Pillow": PIL.__version__,
-                "Versión Python": sys.version.split()[0],
-                "Tipo de archivo": uploaded_file.type,
-                "Solución aplicada": "Uso de LANCZOS en lugar de ANTIALIAS"
+                "Solución": "Uso de pytesseract en lugar de EasyOCR",
+                "Ventajas": "Sin problemas de ANTIALIAS, 100% compatible"
             })
 
-# Panel informativo
-with st.expander("ℹ️ Guía de uso avanzado"):
+# Panel de información
+with st.expander("ℹ️ Instrucciones rápidas"):
     st.markdown("""
-    **📌 Para mejores resultados:**
-    - Texto negro sobre fondo blanco
-    - Resolución mínima: 300dpi
-    - Formatos recomendados: PNG > JPEG > WEBP
+    **📌 Cómo usar:**
+    1. Sube imagen con texto claro
+    2. Espera el análisis automático
+    3. Revisa los resultados
     
-    **⚙️ Configuración técnica:**
-    - Pillow v10.0.0
-    - EasyOCR v1.7.0
-    - Procesamiento por CPU
+    **🛠️ Tecnología usada:**
+    - Pytesseract (OCR estable)
+    - Pillow 10.0.0
+    - Procesamiento optimizado
     """)
