@@ -2,62 +2,69 @@ import streamlit as st
 import numpy as np
 from PIL import Image
 import tensorflow as tf
+import os
+import cv2
 
-# Asegúrate que esto coincida EXACTAMENTE con tu entrenamiento
-CHARS = "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{};:,.<>?/"  # 62 caracteres
+# Configuración de caracteres (62 caracteres)
+CHARS = "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{};:,.<>?/"
 
 @st.cache_resource
 def load_model():
-    interpreter = tf.lite.Interpreter(model_path="ocr_model_compatible.tflite")
-    interpreter.allocate_tensors()
-    return interpreter
+    try:
+        # Cargar modelo desde GitHub
+        model_url = "https://github.com/Hamzasaiditahere/Imagenatexto/raw/main/ocr_model_compatible.tflite"
+        model_path = tf.keras.utils.get_file("ocr_model.tflite", model_url)
+        
+        interpreter = tf.lite.Interpreter(model_path=model_path)
+        interpreter.allocate_tensors()
+        return interpreter
+    except Exception as e:
+        st.error(f"Error al cargar el modelo: {str(e)}")
+        st.stop()
 
 model = load_model()
 input_details = model.get_input_details()
 output_details = model.get_output_details()
 
-st.title("🔠 OCR Corregido")
+st.title("🔠 Reconocimiento de Caracteres")
 
-def predict_image(img_array):
-    """Función segura para predicciones"""
-    interpreter = model
-    interpreter.set_tensor(input_details[0]['index'], img_array)
-    interpreter.invoke()
-    return interpreter.get_tensor(output_details[0]['index'])
+def preprocess_image(image):
+    """Preprocesamiento mejorado para OCR"""
+    # Convertir a escala de grises
+    img = image.convert('L')
+    # Binarización adaptativa
+    img = img.point(lambda x: 0 if x < 150 else 255)
+    # Redimensionar y normalizar
+    img = np.array(img.resize((32, 32))) / 255.0
+    # Invertir colores si es necesario
+    img = 1 - img
+    return np.expand_dims(img, axis=(0, -1)).astype(np.float32)
 
-uploaded_file = st.file_uploader("Sube una imagen CLARA de un carácter", type=["png","jpg","jpeg"])
+uploaded_file = st.file_uploader("Sube una imagen con un solo carácter", type=["png", "jpg", "jpeg"])
 
 if uploaded_file:
     try:
-        # Preprocesamiento MEJORADO
-        img = Image.open(uploaded_file).convert('L')
-        img = img.point(lambda x: 0 if x < 150 else 255, '1')  # Binarización
-        img = np.array(img.resize((32, 32))) / 255.0
-        img = np.expand_dims(img, axis=(0, -1)).astype(np.float32)
+        # Procesar imagen
+        img = Image.open(uploaded_file)
+        processed_img = preprocess_image(img)
         
-        st.image(img[0,:,:,0], width=150, caption="Imagen procesada")
-
+        # Mostrar imagen procesada
+        st.image(processed_img[0,:,:,0], caption="Imagen procesada", width=150)
+        
         # Predicción
-        preds = predict_image(img)
+        model.set_tensor(input_details[0]['index'], processed_img)
+        model.invoke()
+        predictions = model.get_tensor(output_details[0]['index'])
         
-        # Resultados FILTRADOS (solo clases válidas)
-        valid_preds = [p for i, p in enumerate(preds[0]) if i < len(CHARS)]
-        top5_idx = np.argsort(valid_preds)[-5:][::-1]
+        # Mostrar resultados
+        st.subheader("Resultados:")
         
-        st.subheader("Resultados válidos:")
-        if len(valid_preds) == 0:
-            st.error("El modelo no está produciendo clases válidas")
-        else:
-            for i, idx in enumerate(top5_idx):
-                st.write(f"{i+1}. {CHARS[idx]} ({valid_preds[idx]*100:.1f}%)")
+        # Solo considerar las primeras 62 clases (para evitar índices inválidos)
+        valid_predictions = predictions[0][:len(CHARS)]
+        top5 = np.argsort(valid_predictions)[-5:][::-1]
         
-        # Diagnóstico
-        with st.expander("🔍 Ver diagnóstico técnico"):
-            test_input = np.zeros((1,32,32,1), dtype=np.float32)
-            test_pred = predict_image(test_input)
-            st.write("Predicción para imagen negra:", np.argmax(test_pred))
-            st.write("Máxima clase predicha:", np.argmax(preds))
-            st.write("Total de clases en modelo:", output_details[0]['shape'][1])
+        for i, idx in enumerate(top5):
+            st.write(f"{i+1}. {CHARS[idx]} ({valid_predictions[idx]*100:.1f}%)")
             
     except Exception as e:
-        st.error(f"Error: {str(e)}")
+        st.error(f"Error al procesar la imagen: {str(e)}")
