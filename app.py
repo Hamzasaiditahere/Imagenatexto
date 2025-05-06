@@ -53,4 +53,4 @@ def predict(image):
 
 # Interfaz
 st.title("🔠 OCR Ultra Compatible")
-uploaded_file = st.file_uploader("Sube imagen de un carácter
+uploaded_file = st.file_uploader("Sube imagen de un carácter")
