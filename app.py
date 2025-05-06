@@ -13,7 +13,7 @@ IMG_SIZE = 48
 def load_model():
     try:
         # Cargar modelo con verificación de compatibilidad
-        interpreter = tf.lite.Interpreter(model_path="ocr_compatible.tflite")
+        interpreter = tf.lite.Interpreter(model_path="ocr_optimized.tflite")
         
         # Configuración explícita para máxima compatibilidad
         interpreter.allocate_tensors()
