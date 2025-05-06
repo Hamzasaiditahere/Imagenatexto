@@ -37,13 +37,24 @@ def load_model():
 
 def predict(image):
     try:
+        # Convertir la imagen a escala de grises y redimensionarla a 48x48
         img = image.convert('L').resize((IMG_SIZE, IMG_SIZE))
-        img_array = np.array(img).reshape(1, IMG_SIZE, IMG_SIZE, 1).astype(np.float32)/255.0
+        
+        # Mostrar el rango de valores de píxeles antes de normalizar
+        img_array = np.array(img)
+        st.write(f"Rango de valores de píxeles antes de normalizar: {np.min(img_array)} - {np.max(img_array)}")
+        
+        # Normalización: valores de píxeles entre 0 y 1
+        img_array = img_array.reshape(1, IMG_SIZE, IMG_SIZE, 1).astype(np.float32) / 255.0
+        
+        # Verificación de valores después de normalizar
+        st.write(f"Rango de valores de píxeles después de normalizar: {np.min(img_array)} - {np.max(img_array)}")
         
         interpreter = load_model()
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
         
+        # Ejecutar la predicción
         interpreter.set_tensor(input_details[0]['index'], img_array)
         interpreter.invoke()
         
