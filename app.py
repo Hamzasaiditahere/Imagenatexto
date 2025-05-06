@@ -46,11 +46,28 @@ def predict(image):
         
         interpreter.set_tensor(input_details[0]['index'], img_array)
         interpreter.invoke()
-        return interpreter.get_tensor(output_details[0]['index'])[0]
+        
+        # Obtener la predicción
+        output = interpreter.get_tensor(output_details[0]['index'])[0]
+        predicted_index = np.argmax(output)
+        predicted_char = CHARS[predicted_index]
+        
+        return predicted_char
     except Exception as e:
         st.error(f"Error en predicción: {str(e)}")
-        return np.zeros(len(CHARS))
+        return "Error"
 
 # Interfaz
 st.title("🔠 OCR Ultra Compatible")
 uploaded_file = st.file_uploader("Sube imagen de un carácter")
+
+if uploaded_file is not None:
+    # Mostrar la imagen subida
+    img = Image.open(uploaded_file)
+    st.image(img, caption="Imagen subida", use_column_width=True)
+    
+    # Realizar predicción
+    predicted_char = predict(img)
+    
+    # Mostrar el resultado de la predicción
+    st.write(f"El carácter detectado es: {predicted_char}")
